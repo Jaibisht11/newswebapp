@@ -1,38 +1,52 @@
-.App {
-  text-align: center;
+import axios from "axios";
+import { useEffect, useState } from "react";
+import "./App.css";
+import Footer from "./components/Footer/Footer";
+import NavInshort from "./components/NavInshort";
+import NewsContent from "./components/NewsContent/NewsContent";
+
+function App() {
+  const [newsArray, setNewsArray] = useState([]);
+  const [newsResults, setNewsResults] = useState();
+  const [loadMore, setLoadMore] = useState(20);
+  const [category, setCategory] = useState("general");
+
+  console.log(process.env);
+
+  const newsApi = async () => {
+    try {
+      const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+
+      const news = await axios.get(
+        `${proxyUrl}https://newsapi.org/v2/top-headlines?country=us&apiKey=c17bc9d2fbd94038bc2fc11ab6c0f9f9`
+      );
+      // console.log(news);
+      setNewsArray(news.data.articles);
+      setNewsResults(news.data.totalResults);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    newsApi();
+    // eslint-disable-next-line
+  }, [newsResults, loadMore, category]);
+
+  return (
+    <div className="App" id="#home">
+      <NavInshort setCategory={setCategory} />
+      {newsResults && (
+        <NewsContent
+          newsArray={newsArray}
+          newsResults={newsResults}
+          loadMore={loadMore}
+          setLoadMore={setLoadMore}
+        />
+      )}
+      <Footer />
+    </div>
+  );
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+export default App;
